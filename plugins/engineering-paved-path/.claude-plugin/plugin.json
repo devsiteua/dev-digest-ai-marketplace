@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "engineering-paved-path",
+  "version": "0.0.0",
+  "description": "Shared technical skills for TypeScript engineering teams: React, testing, Fastify, Drizzle, PostgreSQL, Zod, architecture, security and Mermaid.",
+  "author": {
+    "name": "AI Engineering"
+  },
+  "homepage": "https://devsiteua.github.io/dev-digest-ai-marketplace/#/plugin/engineering-paved-path",
+  "repository": "https://github.com/devsiteua/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": ["skills", "typescript", "react", "testing", "architecture", "paved-path"]
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "research-tools",
+  "version": "0.0.0",
+  "description": "A generic read-only researcher agent for delegated codebase and documentation discovery.",
+  "author": {
+    "name": "AI Engineering"
+  },
+  "homepage": "https://devsiteua.github.io/dev-digest-ai-marketplace/#/plugin/research-tools",
+  "repository": "https://github.com/devsiteua/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": ["agent", "research", "read-only", "discovery"]
+}

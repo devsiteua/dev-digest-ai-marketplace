@@ -1,0 +1,16 @@
+# Every change to this marketplace needs a review from the owning team.
+# Paired with a branch ruleset on `main` that requires review from Code Owners.
+
+*                               @devsiteua
+
+# Manifests decide what other repositories install. Never self-merge these.
+/.claude-plugin/                @devsiteua
+/plugins/**/.claude-plugin/     @devsiteua
+
+# Release, security and cost policy.
+/docs/RELEASES.md               @devsiteua
+/docs/SECURITY.md               @devsiteua
+/docs/COST-BASELINE.md          @devsiteua
+
+# CI has push access to Pages and to tags.
+/.github/workflows/             @devsiteua

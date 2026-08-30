@@ -1,0 +1,93 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  plugins:
+    name: Plugin manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate the marketplace and every plugin
+        # No --strict flag exists in the documented command; do not add one.
+        run: claude plugin validate .
+
+      - name: Validate each plugin on its own
+        run: |
+          for dir in plugins/*/; do
+            echo "::group::${dir}"
+            claude plugin validate "./${dir%/}"
+            echo "::endgroup::"
+          done
+
+  policy:
+    name: Security policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # docs/SECURITY.md: no absolute paths and no credentials in a plugin.
+      # `git grep` exits 1 when it finds nothing, which is the passing case.
+      - name: No absolute paths in plugins
+        run: |
+          if git grep -nE '(/Users/|/home/|[A-Za-z]:\\)' -- plugins/; then
+            echo "::error::Absolute path in plugins/ — use \${CLAUDE_PLUGIN_ROOT} or \${CLAUDE_SKILL_DIR}"
+            exit 1
+          fi
+
+      - name: No credentials in plugins
+        run: |
+          if git grep -niE '(api[_-]?key|secret|password|bearer)[[:space:]]*[:=]' -- plugins/; then
+            echo "::error::Possible credential in plugins/ — see docs/SECURITY.md"
+            exit 1
+          fi
+
+  site:
+    name: Catalog index and site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Build the catalog index
+        run: npm run build:index
+
+      - name: Install site dependencies
+        working-directory: site
+        run: npm ci
+
+      - name: Build the site
+        working-directory: site
+        run: npm run build
+
+      # Generated JSON and site/dist/ are never committed (docs/SITE-SPEC.md).
+      - name: No generated files committed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::The build wrote tracked files:"
+            git status --porcelain
+            exit 1
+          fi
