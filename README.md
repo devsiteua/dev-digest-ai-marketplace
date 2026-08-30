@@ -73,6 +73,8 @@ Generated JSON and `site/dist/` are never committed.
 
 ## Documentation
 
+- [CLAUDE.md](CLAUDE.md) — orientation: where the work stands and which document answers what
+
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to open a pull request
 - [docs/PLUGIN-GUIDELINES.md](docs/PLUGIN-GUIDELINES.md) — plugin anatomy and manifest fields
 - [docs/COMPONENT-INVENTORY.md](docs/COMPONENT-INVENTORY.md) — which components were extracted, which stayed behind, and why

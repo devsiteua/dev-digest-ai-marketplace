@@ -1,0 +1,125 @@
+# CLAUDE.md
+
+A Claude Code plugin marketplace. It packages the reusable part of the DevDigest
+engineering harness — the spec-driven development workflow, its agents, and the
+practices they rely on — so any repository can install them.
+
+## Where you are in the work
+
+Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–3 are
+done and merged into this branch stack; step 4 is next.
+
+| Step | What | State |
+|---|---|---|
+| 1 | Repository skeleton | done — `feat/repo-skeleton` |
+| 2 | Sort DevDigest components into portable / project-specific / integrations / residue | done — `docs/component-inventory` |
+| 3 | Dependency graph, namespaces, range rules | done — `feat/dependency-graph` |
+| 4 | **Build the four plugins: extract and edit the components** | **next** — [docs/EXTRACTION-PLAN.md](docs/EXTRACTION-PLAN.md) |
+| 5 | Register the plugins in `marketplace.json` | done ahead of time in step 1 |
+| 6 | Static catalog on GitHub Pages | scaffolded; UI per [docs/SITE-SPEC.md](docs/SITE-SPEC.md) |
+| 7 | `claude plugin validate` and behavior evals | not started |
+| 8 | Cost baseline and one optimization | template at [docs/COST-BASELINE.md](docs/COST-BASELINE.md) |
+| 9 | Release `sdd-engineering@1.0.0` | not started |
+| 10 | Install into an unrelated project | blocked — target repository not chosen |
+| 11 | Update to 1.1.0, rehearse the return to 1.0.0 | not started |
+
+## Read these before changing anything
+
+Decisions are recorded, not remembered. If you are about to re-derive one, it is
+probably already written down.
+
+| Document | Answers |
+|---|---|
+| [docs/COMPONENT-INVENTORY.md](docs/COMPONENT-INVENTORY.md) | What was extracted, what stayed in DevDigest, and why. Every component, with its owner and consumer scenario. |
+| [docs/DEPENDENCY-GRAPH.md](docs/DEPENDENCY-GRAPH.md) | The four edges, namespaced references, allowed version ranges. |
+| [docs/EXTRACTION-PLAN.md](docs/EXTRACTION-PLAN.md) | The step 4 work order: per component, exactly what changes. |
+| [docs/PLUGIN-GUIDELINES.md](docs/PLUGIN-GUIDELINES.md) | Plugin anatomy, manifest fields, path variables, tool grants. |
+| [docs/SECURITY.md](docs/SECURITY.md) | What may never appear in a plugin. |
+| [docs/RELEASES.md](docs/RELEASES.md) | SemVer, tag convention, channels, and the way back to an earlier version. |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Where files go and what to run before pushing. |
+
+## The source components
+
+They are read from a sibling repository and never modified:
+
+```
+../dev-digest/.claude/agents/     9 agents
+../dev-digest/.claude/skills/    17 skills
+```
+
+Extraction copies from there into `plugins/`. Nothing in this repository writes
+to `../dev-digest`.
+
+The lab that drives this work is `../dev-digest/reference/lessons/L08/L08-lab.md`,
+with the stream brief at `../dev-digest/reference/lessons/kickoff/L08.md`.
+
+## Layout
+
+```
+.claude-plugin/marketplace.json   catalog entries — name and source only
+plugins/<name>/                   plugin.json is the source of truth for contents
+docs/                             decisions and policy
+scripts/build-index.mjs           builds the catalog index; resolves the graph first
+scripts/graph.mjs                 dependency resolution and its checks
+site/                             React + TypeScript + Vite catalog UI
+.github/workflows/                validate (pull requests), pages (deploy)
+```
+
+## Commands
+
+```bash
+npm run build:index                       # generate the index; fails on a bad graph
+claude plugin validate .                  # the marketplace manifest
+claude plugin validate ./plugins/<name>   # one plugin — the marketplace check does not cover these
+cd site && npm ci && npm run build        # catalog UI
+```
+
+`claude plugin validate .` validates **only** the marketplace manifest, not the
+plugins it lists. Both are needed; CI runs both.
+
+There is no `--strict` flag on `claude plugin validate`, and there is no
+`claude plugin rollback` command. Do not invent either.
+
+## Conventions
+
+- `${CLAUDE_PLUGIN_ROOT}` for plugin-level files, `${CLAUDE_SKILL_DIR}` for files
+  inside a skill. Never an absolute path.
+- Components are addressed by namespaced reference:
+  `engineering-paved-path:skill-routing`, `research-tools:researcher`.
+- Caret ranges for dependencies. An exact pin only to route around a broken
+  release, with an issue open to remove it.
+- Every plugin manifest is at `0.0.0` until step 9. Ranges already name the
+  version they will be tagged with, so `build:index` reports an unsatisfied range
+  against an unreleased dependency as a note rather than an error.
+- Generated files — `site/public/{index,releases,stats}.json`,
+  `site/public/bodies/`, `site/dist/` — are never committed.
+
+## Branch stack
+
+Nothing is pushed yet. Each branch is one reviewable pull request, stacked:
+
+```
+main
+└── feat/repo-skeleton
+    └── docs/component-inventory
+        └── feat/dependency-graph
+            └── docs/extraction-plan
+```
+
+## Two things that need a person
+
+1. **`gh` is missing the `workflow` scope.** The token has `gist, read:org, repo`,
+   so pushing `.github/workflows/*` is rejected. Fix with
+   `gh auth refresh -h github.com -s workflow`. Blocks every push, not just CI.
+2. **Step 10 needs a target repository** — a real project with its own
+   instructions and tests and **no** copies of these agents or skills, or a trace
+   cannot prove the plugin is what ran. Not yet chosen. Not needed before step 9.
+
+## One open question, deliberately deferred
+
+Ten of the technical skills in DevDigest are vendored from third-party GitHub
+repositories or have no recorded provenance, and none carries a license or
+attribution. Republishing them from a public MIT marketplace is a licensing
+question. They are excluded from `engineering-paved-path@1.0.0` for that reason
+and do not block it. See the provenance section of
+[docs/COMPONENT-INVENTORY.md](docs/COMPONENT-INVENTORY.md).
