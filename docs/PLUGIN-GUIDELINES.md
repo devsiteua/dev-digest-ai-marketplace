@@ -18,6 +18,9 @@ If a component has a different owner, or a consumer that does not use the rest
 of the plugin, or a reason to release on its own schedule, it belongs in a
 different plugin.
 
+The answers for every component in the first extraction are recorded in
+[COMPONENT-INVENTORY.md](COMPONENT-INVENTORY.md).
+
 ## Boundaries in this marketplace
 
 | Plugin | Boundary |
