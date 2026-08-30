@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output — never committed, rebuilt by CI (docs/SITE-SPEC.md)
+site/dist/
+
+# The generated catalog index is ignored in site/public/.gitignore,
+# next to where scripts/build-index.mjs writes it.
+
+# Local tooling
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
