@@ -8,7 +8,9 @@ touching any files.
 
 ## Contents
 
-_To be populated._
+| Reference | Kind |
+|---|---|
+| `research-tools:researcher` | agent |
 
 ## Usage
 

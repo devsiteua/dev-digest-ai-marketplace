@@ -8,7 +8,9 @@ hardcoded module names.
 
 ## Contents
 
-_To be populated._
+| Reference | Kind |
+|---|---|
+| `architecture-review:architecture-reviewer` | agent |
 
 ## Dependencies
 

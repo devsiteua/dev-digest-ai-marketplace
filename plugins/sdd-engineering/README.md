@@ -9,19 +9,15 @@ pull request.
 
 ## Contents
 
-_To be populated._
-
-Planned composition:
-
-| Kind | Name |
+| Reference | Kind |
 |---|---|
-| Agent | `spec-creator` |
-| Agent | `implementation-planner` |
-| Agent | `implementer` |
-| Agent | `plan-verifier` |
-| Skill | `run-plan` |
-| Skill | `workflow-retro` |
-| Skill | `engineering-insights` |
+| `sdd-engineering:spec-creator` | agent |
+| `sdd-engineering:implementation-planner` | agent |
+| `sdd-engineering:implementer` | agent |
+| `sdd-engineering:plan-verifier` | agent |
+| `sdd-engineering:run-plan` | skill |
+| `sdd-engineering:workflow-retro` | skill |
+| `sdd-engineering:engineering-insights` | skill |
 
 ## Dependencies
 

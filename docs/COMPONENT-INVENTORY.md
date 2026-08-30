@@ -181,11 +181,24 @@ boundary rather than a hint.
 
 ## Two more findings worth recording
 
-**Behavior evals are not where the lab expects them.** The `evals/` package does
-not exist on the branch the components were read from; it lives only in the
-lesson-06 worktree. Whatever evals ship inside `plugins/*/evals/` will be written
-against the extracted components, not copied from DevDigest. Step 8's cost
-baseline depends on that eval set existing, so it is on the critical path.
+**The eval harness exists; it is just in another worktree.** The `evals/` package
+is not on the branch the components were read from — it lives in the lesson-06
+worktree, already merged there. It is not DevDigest product code: it is a
+self-contained vitest + Agent SDK harness for a Claude Code setup, and its own
+README says it "only adds the `evals/` folder and never touches `server/` or
+`client/`".
+
+Its entire coupling to DevDigest is one file, `evals/src/artifacts/paths.ts`, and
+two constants:
+
+```ts
+export const SKILLS_DIR = join(REPO_ROOT, ".claude", "skills");
+export const AGENTS_DIR = join(REPO_ROOT, ".claude", "agents");
+```
+
+Pointing those at `plugins/*/skills` and `plugins/*/agents` is a few lines. The
+cases themselves are written here, against the extracted components rather than
+copied from DevDigest — but nothing about this waits on another workstream.
 
 **`workflow-retro` has no `scripts/` directory.** The lab's acceptance list checks
 that `workflow-retro/scripts/analyze_journals.py` uses `${CLAUDE_SKILL_DIR}`. The

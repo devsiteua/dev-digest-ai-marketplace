@@ -9,9 +9,23 @@ same instructions are not copied into every agent that needs them.
 
 ## Contents
 
-_To be populated._ Only skills with a real consumer are included: a long
-"just in case" list inflates discovery context and support burden for everyone
-who installs a plugin that depends on this one.
+Planned for 1.0.0 — three skills, each with a named consumer:
+
+| Skill | Consumed by |
+|---|---|
+| `layered-architecture` | `architecture-review:architecture-reviewer` |
+| `frontend-architecture` | `sdd-engineering:implementation-planner` |
+| `skill-routing` | `sdd-engineering:implementation-planner`, when it assigns each plan step a practice |
+
+Only skills with a real consumer are included. A long "just in case" list
+inflates discovery context and support burden for everyone who installs a plugin
+that depends on this one, and no extracted component names a technical skill by
+name — the coupling runs through `skill-routing`. See
+[docs/COMPONENT-INVENTORY.md](../../docs/COMPONENT-INVENTORY.md).
+
+The remaining technical skills in the source repository are vendored from
+third-party repositories or have no recorded provenance. They ship once their
+upstream licenses are checked and attribution is recorded, not before.
 
 ## Usage
 

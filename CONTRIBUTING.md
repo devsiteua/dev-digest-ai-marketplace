@@ -62,6 +62,9 @@ release touches two files that can silently disagree.
 
 ## Dependency rules
 
+The graph and the reasoning behind each edge are in
+[docs/DEPENDENCY-GRAPH.md](docs/DEPENDENCY-GRAPH.md).
+
 - Depend on a plugin, never on a file inside another plugin.
 - Use caret ranges (`^1.0.0`). Pin an exact version only to work around a known
   broken release, and open an issue to remove the pin.

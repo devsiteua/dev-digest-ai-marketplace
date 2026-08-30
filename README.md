@@ -76,6 +76,7 @@ Generated JSON and `site/dist/` are never committed.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to open a pull request
 - [docs/PLUGIN-GUIDELINES.md](docs/PLUGIN-GUIDELINES.md) — plugin anatomy and manifest fields
 - [docs/COMPONENT-INVENTORY.md](docs/COMPONENT-INVENTORY.md) — which components were extracted, which stayed behind, and why
+- [docs/DEPENDENCY-GRAPH.md](docs/DEPENDENCY-GRAPH.md) — the dependency edges, namespaced references and range rules
 - [docs/SITE-SPEC.md](docs/SITE-SPEC.md) — catalog routes, index shape and search
 - [docs/SECURITY.md](docs/SECURITY.md) — what a plugin may never contain
 - [docs/RELEASES.md](docs/RELEASES.md) — SemVer, tags, channels and rollback

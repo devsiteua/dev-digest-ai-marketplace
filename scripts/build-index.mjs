@@ -16,6 +16,8 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { resolveGraph } from './graph.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MARKETPLACE = path.join(ROOT, '.claude-plugin', 'marketplace.json');
 const OUT = path.join(ROOT, 'site', 'public');
@@ -83,6 +85,18 @@ async function main() {
   for (const entry of marketplace.plugins ?? []) {
     plugins.push(await collectPlugin(entry));
   }
+
+  const { graph, errors, notes } = resolveGraph(plugins);
+
+  for (const note of notes) console.warn(`  note: ${note}`);
+
+  if (errors.length) {
+    throw new Error(
+      `dependency graph:\n${errors.map((e) => `  - ${e}`).join('\n')}`
+    );
+  }
+
+  for (const plugin of plugins) Object.assign(plugin, graph.get(plugin.name));
 
   const artifacts = plugins.flatMap((plugin) => plugin.artifacts);
   const generatedAt = new Date().toISOString();
