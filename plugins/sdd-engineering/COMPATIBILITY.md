@@ -26,6 +26,18 @@ copy. Ranges that no single version satisfies are a `range-conflict` at install
 time; see [docs/RELEASES.md](../../docs/RELEASES.md) for the release ordering that
 prevents one.
 
+## Reading the plugin's own files
+
+The agents read reference files from `${CLAUDE_PLUGIN_ROOT}`, which resolves to
+the installed plugin directory — outside the project you are working in. In an
+interactive session Claude Code asks once for permission to read there and
+remembers the answer. In a non-interactive run (`claude -p`) with a restrictive
+permission mode, that read is denied without a prompt: the components then fall
+back on the general behavior described in their own prompts and **say in the
+report that the reference could not be read**. Allow the plugin directory, or run
+with a permission mode that permits it, if you want the documented discovery
+order rather than the general one.
+
 ## Host repository
 
 | Expectation | Required? |

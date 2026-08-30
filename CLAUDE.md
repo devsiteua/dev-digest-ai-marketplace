@@ -6,18 +6,18 @@ practices they rely on — so any repository can install them.
 
 ## Where you are in the work
 
-Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–3 are
-done and merged into this branch stack; step 4 is next.
+Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–5 are
+done and merged into this branch stack; step 6 is next.
 
 | Step | What | State |
 |---|---|---|
 | 1 | Repository skeleton | done — `feat/repo-skeleton` |
 | 2 | Sort DevDigest components into portable / project-specific / integrations / residue | done — `docs/component-inventory` |
 | 3 | Dependency graph, namespaces, range rules | done — `feat/dependency-graph` |
-| 4 | **Build the four plugins: extract and edit the components** | **next** — [docs/EXTRACTION-PLAN.md](docs/EXTRACTION-PLAN.md) |
+| 4 | Build the four plugins: extract and edit the components | done — `feat/extract-plugins` |
 | 5 | Register the plugins in `marketplace.json` | done ahead of time in step 1 |
-| 6 | Static catalog on GitHub Pages | scaffolded; UI per [docs/SITE-SPEC.md](docs/SITE-SPEC.md) |
-| 7 | `claude plugin validate` and behavior evals | not started |
+| 6 | Static catalog on GitHub Pages | **next** — index builds 12 artifacts; UI per [docs/SITE-SPEC.md](docs/SITE-SPEC.md) |
+| 7 | `claude plugin validate` and behavior evals | validate passes for all five manifests; evals not started |
 | 8 | Cost baseline and one optimization | template at [docs/COST-BASELINE.md](docs/COST-BASELINE.md) |
 | 9 | Release `sdd-engineering@1.0.0` | not started |
 | 10 | Install into an unrelated project | blocked — target repository not chosen |
@@ -32,11 +32,26 @@ probably already written down.
 |---|---|
 | [docs/COMPONENT-INVENTORY.md](docs/COMPONENT-INVENTORY.md) | What was extracted, what stayed in DevDigest, and why. Every component, with its owner and consumer scenario. |
 | [docs/DEPENDENCY-GRAPH.md](docs/DEPENDENCY-GRAPH.md) | The four edges, namespaced references, allowed version ranges. |
-| [docs/EXTRACTION-PLAN.md](docs/EXTRACTION-PLAN.md) | The step 4 work order: per component, exactly what changes. |
 | [docs/PLUGIN-GUIDELINES.md](docs/PLUGIN-GUIDELINES.md) | Plugin anatomy, manifest fields, path variables, tool grants. |
 | [docs/SECURITY.md](docs/SECURITY.md) | What may never appear in a plugin. |
 | [docs/RELEASES.md](docs/RELEASES.md) | SemVer, tag convention, channels, and the way back to an earlier version. |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Where files go and what to run before pushing. |
+
+## What the plugins ship
+
+Twelve components, all six agents and six skills the dependency graph names.
+`npm run build:index` reports the same count.
+
+| Plugin | Components |
+|---|---|
+| `research-tools` | `researcher` |
+| `architecture-review` | `architecture-reviewer` |
+| `engineering-paved-path` | `layered-architecture`, `frontend-architecture`, `skill-routing` |
+| `sdd-engineering` | `spec-creator`, `implementation-planner`, `implementer`, `plan-verifier`, `run-plan`, `workflow-retro`, `engineering-insights` |
+
+Each plugin's `README.md` states its inputs and what happens when one is missing;
+its `CHANGELOG.md` records what the extraction changed and, for
+`sdd-engineering`, which duplicated instruction now has which single owner.
 
 ## The source components
 
@@ -88,6 +103,13 @@ There is no `--strict` flag on `claude plugin validate`, and there is no
   `engineering-paved-path:skill-routing`, `research-tools:researcher`.
 - Caret ranges for dependencies. An exact pin only to route around a broken
   release, with an issue open to remove it.
+- **No command is ever hardcoded in a plugin.** Every verification command is
+  discovered from the host repository's manifest by conventional name. Absent and
+  required: say which command, and stop. Absent and optional: report not run, and
+  continue. Never guess, never substitute.
+- Host configuration is one optional file at the host root,
+  `.claude/sdd-engineering.json`. Every key has a documented default, so a
+  repository that accepts them all needs no configuration step.
 - Every plugin manifest is at `0.0.0` until step 9. Ranges already name the
   version they will be tagged with, so `build:index` reports an unsatisfied range
   against an unreleased dependency as a note rather than an error.
@@ -104,6 +126,7 @@ main
     └── docs/component-inventory
         └── feat/dependency-graph
             └── docs/extraction-plan
+                └── feat/extract-plugins
 ```
 
 ## Two things that need a person
