@@ -6,12 +6,12 @@
  * writes site/public/{index,releases,stats}.json plus site/public/bodies/.
  * The output is never committed — see docs/SITE-SPEC.md.
  *
- * Scope note: this reads manifests and READMEs. Component frontmatter
- * (agents/, skills/, commands/), changelog parsing for the release feed and
- * compatibility parsing are added once the plugins are populated.
+ * Scope note: this reads manifests, READMEs, COMPATIBILITY.md and the
+ * frontmatter of every agent, skill and command. Changelog parsing for the
+ * release feed lands with the catalog UI in step 6.
  */
 
-import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,6 +31,126 @@ const readOptional = async (file) =>
 /** A manifest author may be a string or { name }. Normalise to a string. */
 const authorName = (author) =>
   typeof author === 'string' ? author : author?.name ?? null;
+
+/**
+ * Minimal YAML frontmatter reader: enough for `key: value` and `key: [a, b]`,
+ * which is all an agent or skill file uses. A quoted value keeps its inner
+ * punctuation; anything more elaborate is not worth a YAML dependency here.
+ */
+function frontmatter(source) {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(source);
+  if (!match) return null;
+
+  const fields = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    const field = /^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/.exec(line);
+    if (!field) continue;
+
+    let value = field[2].trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"') && value.length > 1) ||
+      (value.startsWith("'") && value.endsWith("'") && value.length > 1)
+    ) {
+      value = value.slice(1, -1);
+    }
+    fields[field[1]] = value;
+  }
+  return fields;
+}
+
+/** `Read, Grep, Glob` or `[Read, Grep]` -> ['Read', 'Grep', 'Glob']. */
+const toolList = (value) =>
+  !value
+    ? []
+    : value
+        .replace(/^\[|\]$/g, '')
+        .split(',')
+        .map((tool) => tool.trim())
+        .filter(Boolean);
+
+const listDirs = async (dir) =>
+  existsSync(dir)
+    ? (await readdir(dir, { withFileTypes: true }))
+        .filter((e) => e.isDirectory())
+        .map((e) => e.name)
+        .sort()
+    : [];
+
+const listFiles = async (dir, ext) =>
+  existsSync(dir)
+    ? (await readdir(dir, { withFileTypes: true }))
+        .filter((e) => e.isFile() && e.name.endsWith(ext))
+        .map((e) => e.name)
+        .sort()
+    : [];
+
+/**
+ * Every agent, skill and command a plugin ships, from its own frontmatter.
+ * The file's own `name:` wins over its filename — a mismatch is how a component
+ * ends up unreachable under the name the docs give it, so it is an error.
+ */
+async function collectArtifacts(dir, pluginName) {
+  const artifacts = [];
+
+  const add = (kind, file, source, fallbackName) => {
+    const fields = frontmatter(source);
+    if (!fields?.name) {
+      throw new Error(
+        `${pluginName}: ${path.relative(ROOT, file)} has no \`name\` in its frontmatter`
+      );
+    }
+    if (fallbackName && fields.name !== fallbackName) {
+      throw new Error(
+        `${pluginName}: ${path.relative(ROOT, file)} declares name "${fields.name}" ` +
+          `but sits at "${fallbackName}" — they must agree`
+      );
+    }
+
+    artifacts.push({
+      id: `${pluginName}:${fields.name}`,
+      kind,
+      name: fields.name,
+      plugin: pluginName,
+      description: fields.description ?? '',
+      model: fields.model ?? null,
+      tools: toolList(fields.tools ?? fields['allowed-tools']),
+      keywords: [],
+      bodyId: `${pluginName}--${kind}--${fields.name}`,
+      source,
+    });
+  };
+
+  for (const name of await listFiles(path.join(dir, 'agents'), '.md')) {
+    const file = path.join(dir, 'agents', name);
+    add('agent', file, await readFile(file, 'utf8'), path.basename(name, '.md'));
+  }
+
+  for (const name of await listDirs(path.join(dir, 'skills'))) {
+    const file = path.join(dir, 'skills', name, 'SKILL.md');
+    if (!existsSync(file)) {
+      throw new Error(`${pluginName}: skills/${name}/ has no SKILL.md`);
+    }
+    add('skill', file, await readFile(file, 'utf8'), name);
+  }
+
+  for (const name of await listFiles(path.join(dir, 'commands'), '.md')) {
+    const file = path.join(dir, 'commands', name);
+    add('command', file, await readFile(file, 'utf8'), null);
+  }
+
+  return artifacts;
+}
+
+/**
+ * The minimum Claude Code version, from the plugin's COMPATIBILITY.md. Absent
+ * rather than guessed: a fabricated floor is worse than a missing one, because
+ * an install that should have been refused is the failure it exists to prevent.
+ */
+function compatibilityOf(text) {
+  if (!text) return null;
+  const match = /\*\*Minimum:\s*([0-9]+\.[0-9]+\.[0-9]+)\.?\*\*/.exec(text);
+  return match ? { claudeCode: `>=${match[1]}` } : null;
+}
 
 async function collectPlugin(entry) {
   const dir = path.resolve(ROOT, entry.source);
@@ -58,6 +178,21 @@ async function collectPlugin(entry) {
     await writeFile(path.join(BODIES, `${bodyId}.md`), readme, 'utf8');
   }
 
+  const compatibility = compatibilityOf(
+    await readOptional(path.join(dir, 'COMPATIBILITY.md'))
+  );
+
+  const artifacts = await collectArtifacts(dir, manifest.name);
+
+  for (const artifact of artifacts) {
+    await writeFile(
+      path.join(BODIES, `${artifact.bodyId}.md`),
+      artifact.source,
+      'utf8'
+    );
+    delete artifact.source;
+  }
+
   return {
     name: manifest.name,
     version: manifest.version,
@@ -67,10 +202,8 @@ async function collectPlugin(entry) {
     homepage: manifest.homepage ?? null,
     keywords: manifest.keywords ?? [],
     dependencies: manifest.dependencies ?? [],
-    // TODO(step 4): read from the plugin's COMPATIBILITY.md once it exists.
-    compatibility: null,
-    // TODO(step 4): enumerate agents/, skills/ and commands/ frontmatter.
-    artifacts: [],
+    compatibility,
+    artifacts,
     bodyId: readme ? bodyId : null,
   };
 }
@@ -98,7 +231,12 @@ async function main() {
 
   for (const plugin of plugins) Object.assign(plugin, graph.get(plugin.name));
 
+  // The index carries artifacts once, at the top level; each plugin keeps only
+  // the ids, so a plugin card does not ship every description twice.
   const artifacts = plugins.flatMap((plugin) => plugin.artifacts);
+  for (const plugin of plugins) {
+    plugin.artifacts = plugin.artifacts.map((artifact) => artifact.id);
+  }
   const generatedAt = new Date().toISOString();
 
   const index = {
