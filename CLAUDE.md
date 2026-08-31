@@ -6,9 +6,8 @@ practices they rely on — so any repository can install them.
 
 ## Where you are in the work
 
-Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–8 are
-done and merged into this branch stack; step 9 is prepared but **blocked on a
-merge to `main`** — see below.
+Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–10 are
+done and on `main`; step 11 is next.
 
 | Step | What | State |
 |---|---|---|
@@ -17,12 +16,12 @@ merge to `main`** — see below.
 | 3 | Dependency graph, namespaces, range rules | done — `feat/dependency-graph` |
 | 4 | Build the four plugins: extract and edit the components | done — `feat/extract-plugins` |
 | 5 | Register the plugins in `marketplace.json` | done ahead of time in step 1 |
-| 6 | Static catalog on GitHub Pages | done — `feat/catalog-site` |
+| 6 | Static catalog on GitHub Pages | done — live at <https://devsiteua.github.io/dev-digest-ai-marketplace/> |
 | 7 | `claude plugin validate` and behavior evals | done — `feat/behavior-evals` |
 | 8 | Cost baseline and one optimization | done — `feat/cost-baseline`. Measured; the optimization did **not** reduce cost, and that is the recorded result |
-| 9 | Release `sdd-engineering@1.0.0` | prepared on `feat/release-1.0.0`; **tagging blocked** until the stack is on `main` and CI is green on that SHA |
-| 10 | Install into an unrelated project | blocked — target repository not chosen |
-| 11 | Update to 1.1.0, rehearse the return to 1.0.0 | not started |
+| 9 | Release `sdd-engineering@1.0.0` | done — four tags at `431f55d`, CI green on that commit |
+| 10 | Install into an unrelated project | done — [docs/INSTALL-TRACE.md](docs/INSTALL-TRACE.md) |
+| 11 | Update to 1.1.0, rehearse the return to 1.0.0 | **next** — the path back is in [docs/RELEASES.md](docs/RELEASES.md) |
 
 ## Read these before changing anything
 
@@ -37,6 +36,7 @@ probably already written down.
 | [docs/SECURITY.md](docs/SECURITY.md) | What may never appear in a plugin. |
 | [docs/RELEASES.md](docs/RELEASES.md) | SemVer, tag convention, channels, and the way back to an earlier version. |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Where files go and what to run before pushing. |
+| [docs/INSTALL-TRACE.md](docs/INSTALL-TRACE.md) | The step 10 evidence: installing 1.0.0 into a project that is not this one, and what the trace does and does not prove. |
 | [evals/README.md](evals/README.md) | The eval case format, the fixtures, and why this repository runs its own runner instead of `claude plugin eval`. |
 
 ## What the plugins ship
@@ -155,18 +155,20 @@ repository's workflows from its default branch, and `main` is still the initial
 commit — it carries no `.github/`. Merging PR #1 puts the workflows on `main`,
 after which `validate` runs on every open pull request.
 
-## Two things that need a person
+## Released
 
-1. **The stack has to reach `main` before anything can be tagged.**
-   [RELEASES.md](docs/RELEASES.md) requires that a tag point at a commit which is
-   on `main` and passed CI, and CI itself does not run yet because `main` carries
-   no `.github/` — GitHub registers workflows from the default branch. Merging
-   PR #1 starts CI for the whole stack; merging through PR #9 makes the release
-   taggable. **A tag is permanent — never move one that has been pushed** — so
-   this is a person's decision, not an automated step.
-2. **Step 10 needs a target repository** — a real project with its own
-   instructions and tests and **no** copies of these agents or skills, or a trace
-   cannot prove the plugin is what ran. Not yet chosen.
+`1.0.0` for all four plugins, tagged at `431f55d` on `main` with CI green on that
+commit. The catalog is live at
+<https://devsiteua.github.io/dev-digest-ai-marketplace/>.
+
+```bash
+claude plugin marketplace add devsiteua/dev-digest-ai-marketplace
+claude plugin install sdd-engineering@dev-digest-ai-marketplace --scope project
+```
+
+**A tag is permanent. Never move one that has been pushed** — a consumer may
+already have resolved it. Going back to an earlier version is an install from a
+pinned channel, not a moved tag; there is no `claude plugin rollback` command.
 
 ## One open question, deliberately deferred
 
