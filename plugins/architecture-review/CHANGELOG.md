@@ -10,6 +10,9 @@ Nothing yet.
 
 ## [1.0.0] — 2026-08-31
 
+Released from `main` at `431f55d`, tagged `architecture-review--v1.0.0`. CI green on that
+exact commit.
+
 **Release gate.** Behaviour evals green before the tag: **6/6 cases, $2.27**,
 three of them negative. Run with `npm run eval`.
 
