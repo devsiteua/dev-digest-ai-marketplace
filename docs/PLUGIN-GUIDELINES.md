@@ -18,6 +18,9 @@ If a component has a different owner, or a consumer that does not use the rest
 of the plugin, or a reason to release on its own schedule, it belongs in a
 different plugin.
 
+The answers for every component in the first extraction are recorded in
+[COMPONENT-INVENTORY.md](COMPONENT-INVENTORY.md).
+
 ## Boundaries in this marketplace
 
 | Plugin | Boundary |
@@ -129,10 +132,21 @@ automatically safe once the plugin is installed somewhere else.
 If an instruction appears in both an agent prompt and a skill, delete it from the
 agent prompt and let the skill be the one source. Every agent prompt is loaded
 into context on every invocation; a skill reference is loaded when it is needed.
-Duplication costs tokens on every single run and, worse, the two copies drift.
+The reason is **drift**: two copies of an instruction diverge, and nobody
+notices which one an agent actually followed.
 
-This is also the first optimization measured in
-[COST-BASELINE.md](COST-BASELINE.md).
+It was also the first optimization measured in
+[COST-BASELINE.md](COST-BASELINE.md), and the measurement did **not** support the
+token argument that used to be made here. Removing 3.4k tokens from
+`implementation-planner`'s prompt cut its on-invoke cost by 38%, but the cost of
+a real planner run did not move: the planner needs the instruction, so it now
+fetches what it used to carry, and the fetch has its own overhead. Median cost
+went up 5.7%, inside run-to-run noise.
+
+So deduplicate for correctness, and expect a saving only where the shared
+instruction is genuinely **not needed** on a given run, or where **several agents
+in one run** would each have carried a copy. Claiming a token saving for it in
+the general case is not supported by the one measurement this repository has.
 
 ## Documentation each plugin owes
 

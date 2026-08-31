@@ -56,12 +56,39 @@ create these tags by hand.
 3. `claude plugin validate .` green.
 4. Behavior evals green — the existing set **and** the ones added for the new
    behavior. Negative evals included.
+
+   ```bash
+   npm run eval
+   ```
+
+   CI runs only `npm run eval:dry`, which proves the cases parse and nothing
+   more: a real run starts a model session per case, so it costs money and needs
+   credentials CI does not have. **The full run is a human step, here, before the
+   tag** — a release whose evals were never run has a checklist tick and no
+   evidence. Record the run's case count and total cost in the changelog entry
+   beside the SHA.
 5. The commit is merged to `main` and CI passed on that exact SHA.
 6. `claude plugin tag --dry-run`, then `--push`.
 7. Record the SHA in the changelog entry.
 
 A tag must permanently point at a commit that passed CI. Never move a tag that
 has been pushed — a consumer may already have resolved it.
+
+### Release order for 1.0.0
+
+The graph decides it: dependencies first, consumers second, so that a consumer
+is never tagged against a dependency nobody can resolve.
+
+```
+1. engineering-paved-path--v1.0.0     leaf
+2. research-tools--v1.0.0             leaf
+3. architecture-review--v1.0.0        depends on engineering-paved-path
+4. sdd-engineering--v1.0.0            depends on all three
+```
+
+`claude plugin tag --dry-run ./plugins/<name>` prints the exact `git tag` and
+`git push` it would run, and refuses on a dirty working tree. Run it for all
+four before running any of them with `--push`.
 
 ## Update, from the consumer's side
 

@@ -7,6 +7,10 @@ site/dist/
 # The generated catalog index is ignored in site/public/.gitignore,
 # next to where scripts/build-index.mjs writes it.
 
+# Eval results are a record of one run on one machine; a stale one committed
+# here reads as a current claim (evals/README.md).
+evals/results/
+
 # Local tooling
 .DS_Store
 *.log

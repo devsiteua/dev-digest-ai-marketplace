@@ -62,6 +62,9 @@ release touches two files that can silently disagree.
 
 ## Dependency rules
 
+The graph and the reasoning behind each edge are in
+[docs/DEPENDENCY-GRAPH.md](docs/DEPENDENCY-GRAPH.md).
+
 - Depend on a plugin, never on a file inside another plugin.
 - Use caret ranges (`^1.0.0`). Pin an exact version only to work around a known
   broken release, and open an issue to remove the pin.
@@ -93,9 +96,12 @@ claude plugin validate .                    # the marketplace and every plugin
 
 npm run build:index                         # catalog index must generate
 cd site && npm ci && npm run build          # catalog UI must build
+
+npm run eval:dry                            # every eval case parses — costs nothing
+npm run eval                                # behavior evals, for real
 ```
 
-Load the plugins directly to check behavior, not just shape:
+Load the plugins directly to check behavior by hand:
 
 ```bash
 claude \
@@ -107,6 +113,11 @@ claude \
 
 Schema validation checks the shape of the files. Behavior evals check that the
 composition does the intended work. Both levels are required.
+
+`npm run eval` starts a real session per case and therefore costs money. Run
+`npm run eval:dry` freely — it catches a bad regex or a missing fixture without
+spending anything. See [evals/README.md](evals/README.md) for the case format
+and for why this repository has its own runner instead of `claude plugin eval`.
 
 ## Pull request checklist
 
