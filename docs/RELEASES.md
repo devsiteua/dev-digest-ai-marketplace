@@ -74,6 +74,22 @@ create these tags by hand.
 A tag must permanently point at a commit that passed CI. Never move a tag that
 has been pushed — a consumer may already have resolved it.
 
+### Release order for 1.0.0
+
+The graph decides it: dependencies first, consumers second, so that a consumer
+is never tagged against a dependency nobody can resolve.
+
+```
+1. engineering-paved-path--v1.0.0     leaf
+2. research-tools--v1.0.0             leaf
+3. architecture-review--v1.0.0        depends on engineering-paved-path
+4. sdd-engineering--v1.0.0            depends on all three
+```
+
+`claude plugin tag --dry-run ./plugins/<name>` prints the exact `git tag` and
+`git push` it would run, and refuses on a dirty working tree. Run it for all
+four before running any of them with `--push`.
+
 ## Update, from the consumer's side
 
 ```bash

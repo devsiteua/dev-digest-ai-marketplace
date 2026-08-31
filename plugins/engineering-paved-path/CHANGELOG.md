@@ -10,6 +10,10 @@ Nothing yet.
 
 ## [1.0.0] — 2026-08-31
 
+**Release gate.** Behaviour evals green before the tag: **6/6 cases, $2.27**,
+three of them negative. Run with `npm run eval`.
+
+
 ### Added
 
 - `skill-routing` — a new skill, extracted from §3 of a pre-pull-request gate
