@@ -83,7 +83,7 @@ plugin-scoped reference.
 
 ### Roster
 
-**`engineering-paved-path`** — planned for 1.0.0, three skills:
+**`engineering-paved-path`** — three skills, released in 1.0.0:
 
 | Reference | Consumed by |
 |---|---|
@@ -165,6 +165,10 @@ npm run build:index
 
 The build resolves the graph before writing anything, and fails on an unknown
 dependency, a self-dependency, a cycle or an unsatisfiable range.
+
+**As of the 1.0.0 release all four are at `1.0.0`, every range resolves, and the
+build reports no notes.** What follows describes the mechanism, which still
+applies to the next plugin scaffolded here.
 
 While a dependency is still at `0.0.0` — scaffolded, never released — an
 unsatisfied `^1.0.0` is reported as a note rather than an error:

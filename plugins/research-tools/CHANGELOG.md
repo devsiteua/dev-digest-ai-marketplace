@@ -6,6 +6,10 @@ All notable changes to `research-tools` are documented here. The format follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.0.0] — 2026-08-31
+
 ### Added
 
 - The `researcher` agent: read-only repository and external research, returning a

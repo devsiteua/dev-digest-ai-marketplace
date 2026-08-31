@@ -7,7 +7,8 @@ practices they rely on — so any repository can install them.
 ## Where you are in the work
 
 Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–8 are
-done and merged into this branch stack; step 9 is next.
+done and merged into this branch stack; step 9 is prepared but **blocked on a
+merge to `main`** — see below.
 
 | Step | What | State |
 |---|---|---|
@@ -19,7 +20,7 @@ done and merged into this branch stack; step 9 is next.
 | 6 | Static catalog on GitHub Pages | done — `feat/catalog-site` |
 | 7 | `claude plugin validate` and behavior evals | done — `feat/behavior-evals` |
 | 8 | Cost baseline and one optimization | done — `feat/cost-baseline`. Measured; the optimization did **not** reduce cost, and that is the recorded result |
-| 9 | Release `sdd-engineering@1.0.0` | **next** — dependencies release first, then the consumer ([docs/RELEASES.md](docs/RELEASES.md)) |
+| 9 | Release `sdd-engineering@1.0.0` | prepared on `feat/release-1.0.0`; **tagging blocked** until the stack is on `main` and CI is green on that SHA |
 | 10 | Install into an unrelated project | blocked — target repository not chosen |
 | 11 | Update to 1.1.0, rehearse the return to 1.0.0 | not started |
 
@@ -125,9 +126,10 @@ runs the same cases today. Do not write cases against a guessed `case.yaml`.
 - Host configuration is one optional file at the host root,
   `.claude/sdd-engineering.json`. Every key has a documented default, so a
   repository that accepts them all needs no configuration step.
-- Every plugin manifest is at `0.0.0` until step 9. Ranges already name the
-  version they will be tagged with, so `build:index` reports an unsatisfied range
-  against an unreleased dependency as a note rather than an error.
+- Every plugin manifest was at `0.0.0` until step 9 and is now at `1.0.0`. The
+  caret ranges always named the version they would be tagged with, so
+  `build:index` reported an unsatisfied range against an unreleased dependency as
+  a note; those notes are gone now that all four are at `1.0.0`.
 - Generated files — `site/public/{index,releases,stats}.json`,
   `site/public/bodies/`, `site/dist/` — are never committed.
 
@@ -145,6 +147,7 @@ main
                     └── feat/catalog-site              PR #6
                         └── feat/behavior-evals            PR #7
                             └── feat/cost-baseline             PR #8
+                                └── feat/release-1.0.0             PR #9
 ```
 
 **CI does not run yet, and that is not a misconfiguration.** GitHub registers a
@@ -154,12 +157,16 @@ after which `validate` runs on every open pull request.
 
 ## Two things that need a person
 
-1. **`gh` is missing the `workflow` scope.** The token has `gist, read:org, repo`,
-   so pushing `.github/workflows/*` is rejected. Fix with
-   `gh auth refresh -h github.com -s workflow`. Blocks every push, not just CI.
+1. **The stack has to reach `main` before anything can be tagged.**
+   [RELEASES.md](docs/RELEASES.md) requires that a tag point at a commit which is
+   on `main` and passed CI, and CI itself does not run yet because `main` carries
+   no `.github/` — GitHub registers workflows from the default branch. Merging
+   PR #1 starts CI for the whole stack; merging through PR #9 makes the release
+   taggable. **A tag is permanent — never move one that has been pushed** — so
+   this is a person's decision, not an automated step.
 2. **Step 10 needs a target repository** — a real project with its own
    instructions and tests and **no** copies of these agents or skills, or a trace
-   cannot prove the plugin is what ran. Not yet chosen. Not needed before step 9.
+   cannot prove the plugin is what ran. Not yet chosen.
 
 ## One open question, deliberately deferred
 

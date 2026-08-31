@@ -6,6 +6,10 @@ All notable changes to `sdd-engineering` are documented here. The format follows
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.0.0] — 2026-08-31
+
 ### Added
 
 - The four workflow agents — `spec-creator`, `implementation-planner`,

@@ -10,7 +10,7 @@ workflow is a normal consumer.
 
 ## Contents
 
-Three skills, each with a named consumer.
+Three skills, each with a named consumer. Released in 1.0.0.
 
 | Skill | Answers | Consumed by |
 |---|---|---|

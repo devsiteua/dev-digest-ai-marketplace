@@ -6,6 +6,10 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.0.0] — 2026-08-31
+
 ### Added
 
 - `skill-routing` — a new skill, extracted from §3 of a pre-pull-request gate

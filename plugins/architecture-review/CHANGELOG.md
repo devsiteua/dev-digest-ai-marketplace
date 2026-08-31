@@ -6,6 +6,10 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.0.0] — 2026-08-31
+
 ### Added
 
 - The `architecture-reviewer` agent: read-only architectural review of existing
