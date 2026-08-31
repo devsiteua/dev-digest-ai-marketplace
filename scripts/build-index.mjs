@@ -6,9 +6,8 @@
  * writes site/public/{index,releases,stats}.json plus site/public/bodies/.
  * The output is never committed — see docs/SITE-SPEC.md.
  *
- * Scope note: this reads manifests, READMEs, COMPATIBILITY.md and the
- * frontmatter of every agent, skill and command. Changelog parsing for the
- * release feed lands with the catalog UI in step 6.
+ * Scope note: this reads manifests, READMEs, COMPATIBILITY.md, CHANGELOG.md and
+ * the frontmatter of every agent, skill and command.
  */
 
 import { readFile, writeFile, mkdir, rm, readdir } from 'node:fs/promises';
@@ -152,6 +151,65 @@ function compatibilityOf(text) {
   return match ? { claudeCode: `>=${match[1]}` } : null;
 }
 
+/**
+ * Releases from a Keep a Changelog file, newest first.
+ *
+ * `Unreleased` is not a release and never appears in the feed — the whole point
+ * of the feed is what a consumer can actually install. A version heading with no
+ * date keeps `date: null` rather than being given today's: a fabricated release
+ * date is worse than a missing one (docs/SITE-SPEC.md).
+ */
+function parseChangelog(text, plugin) {
+  if (!text) return [];
+
+  const releases = [];
+  let current = null;
+  let section = null;
+
+  for (const line of text.split(/\r?\n/)) {
+    const version = /^##\s+\[?([^\]\s]+)\]?\s*(?:[-–—]\s*(\d{4}-\d{2}-\d{2}))?\s*$/.exec(line);
+
+    if (version) {
+      const name = version[1];
+      current = /^unreleased$/i.test(name)
+        ? null
+        : {
+            plugin,
+            version: name,
+            date: version[2] ?? null,
+            // The convention in docs/RELEASES.md. Built here rather than read
+            // from the remote: the feed describes what a tag should be called,
+            // and a missing tag is a release-checklist failure, not a UI one.
+            tag: `${plugin}--v${name}`,
+            sections: {},
+          };
+      if (current) releases.push(current);
+      section = null;
+      continue;
+    }
+
+    const heading = /^###\s+(.+?)\s*$/.exec(line);
+    if (heading) {
+      section = current ? heading[1] : null;
+      if (current && section) current.sections[section] ??= [];
+      continue;
+    }
+
+    const bullet = /^[-*]\s+(.+?)\s*$/.exec(line);
+    if (bullet && current && section) {
+      current.sections[section].push(bullet[1]);
+    }
+  }
+
+  return releases;
+}
+
+/** Newest release date across every plugin, or null when nothing is dated. */
+const newestReleaseDate = (releases) => {
+  const dates = releases.map((r) => r.date).filter(Boolean).sort();
+  return dates.length ? dates[dates.length - 1] : null;
+};
+
 async function collectPlugin(entry) {
   const dir = path.resolve(ROOT, entry.source);
   const manifestPath = path.join(dir, '.claude-plugin', 'plugin.json');
@@ -182,6 +240,11 @@ async function collectPlugin(entry) {
     await readOptional(path.join(dir, 'COMPATIBILITY.md'))
   );
 
+  const releases = parseChangelog(
+    await readOptional(path.join(dir, 'CHANGELOG.md')),
+    manifest.name
+  );
+
   const artifacts = await collectArtifacts(dir, manifest.name);
 
   for (const artifact of artifacts) {
@@ -204,6 +267,7 @@ async function collectPlugin(entry) {
     dependencies: manifest.dependencies ?? [],
     compatibility,
     artifacts,
+    releases,
     bodyId: readme ? bodyId : null,
   };
 }
@@ -250,8 +314,15 @@ async function main() {
     artifacts,
   };
 
-  // TODO(step 6): build from each plugin's CHANGELOG.md.
-  const releases = { generatedAt, releases: [] };
+  // Newest first across every plugin. An undated entry sorts last rather than
+  // being guessed into an order.
+  const allReleases = plugins
+    .flatMap((plugin) => plugin.releases)
+    .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
+
+  for (const plugin of plugins) delete plugin.releases;
+
+  const releases = { generatedAt, releases: allReleases };
 
   const stats = {
     generatedAt,
@@ -261,9 +332,10 @@ async function main() {
       acc[a.kind] = (acc[a.kind] ?? 0) + 1;
       return acc;
     }, {}),
-    // Absent rather than zero: no release has been parsed yet, and a fabricated
-    // date is worse than a missing one (docs/SITE-SPEC.md).
-    latestRelease: null,
+    releases: allReleases.length,
+    // Null rather than a guess: with nothing released, the UI says so instead of
+    // showing a date nobody can install (docs/SITE-SPEC.md).
+    latestRelease: newestReleaseDate(allReleases),
   };
 
   const write = (name, data) =>
@@ -276,8 +348,8 @@ async function main() {
   ]);
 
   console.log(
-    `build-index: ${plugins.length} plugins, ${artifacts.length} artifacts ` +
-      `-> ${path.relative(ROOT, OUT)}`
+    `build-index: ${plugins.length} plugins, ${artifacts.length} artifacts, ` +
+      `${allReleases.length} releases -> ${path.relative(ROOT, OUT)}`
   );
 }
 

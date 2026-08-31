@@ -6,8 +6,8 @@ practices they rely on — so any repository can install them.
 
 ## Where you are in the work
 
-Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–5 are
-done and merged into this branch stack; step 6 is next.
+Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–6 are
+done and merged into this branch stack; step 7 is next.
 
 | Step | What | State |
 |---|---|---|
@@ -16,8 +16,8 @@ done and merged into this branch stack; step 6 is next.
 | 3 | Dependency graph, namespaces, range rules | done — `feat/dependency-graph` |
 | 4 | Build the four plugins: extract and edit the components | done — `feat/extract-plugins` |
 | 5 | Register the plugins in `marketplace.json` | done ahead of time in step 1 |
-| 6 | Static catalog on GitHub Pages | **next** — index builds 12 artifacts; UI per [docs/SITE-SPEC.md](docs/SITE-SPEC.md) |
-| 7 | `claude plugin validate` and behavior evals | validate passes for all five manifests; evals not started |
+| 6 | Static catalog on GitHub Pages | done — `feat/catalog-site` |
+| 7 | `claude plugin validate` and behavior evals | **next** — validate passes for all five manifests; evals not started |
 | 8 | Cost baseline and one optimization | template at [docs/COST-BASELINE.md](docs/COST-BASELINE.md) |
 | 9 | Release `sdd-engineering@1.0.0` | not started |
 | 10 | Install into an unrelated project | blocked — target repository not chosen |
@@ -87,7 +87,12 @@ npm run build:index                       # generate the index; fails on a bad g
 claude plugin validate .                  # the marketplace manifest
 claude plugin validate ./plugins/<name>   # one plugin — the marketplace check does not cover these
 cd site && npm ci && npm run build        # catalog UI
+cd site && npm run preview                # serve the built catalog locally
 ```
+
+`build:index` must run before the site build: the catalog reads
+`site/public/{index,releases,stats}.json` and `site/public/bodies/`, none of
+which are committed.
 
 `claude plugin validate .` validates **only** the marketplace manifest, not the
 plugins it lists. Both are needed; CI runs both.
@@ -122,12 +127,18 @@ Nothing is pushed yet. Each branch is one reviewable pull request, stacked:
 
 ```
 main
-└── feat/repo-skeleton
-    └── docs/component-inventory
-        └── feat/dependency-graph
-            └── docs/extraction-plan
-                └── feat/extract-plugins
+└── feat/repo-skeleton          PR #1
+    └── docs/component-inventory      PR #2
+        └── feat/dependency-graph         PR #3
+            └── docs/extraction-plan          PR #4
+                └── feat/extract-plugins          PR #5
+                    └── feat/catalog-site              PR #6
 ```
+
+**CI does not run yet, and that is not a misconfiguration.** GitHub registers a
+repository's workflows from its default branch, and `main` is still the initial
+commit — it carries no `.github/`. Merging PR #1 puts the workflows on `main`,
+after which `validate` runs on every open pull request.
 
 ## Two things that need a person
 
