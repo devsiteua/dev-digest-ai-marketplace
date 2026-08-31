@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "dev-digest-ai-marketplace",
+  "owner": {
+    "name": "AI Engineering"
+  },
+  "metadata": {
+    "description": "Claude Code plugin marketplace extracted from DevDigest: the spec-driven development workflow and the shared engineering practices it builds on.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    { "name": "engineering-paved-path", "source": "./plugins/engineering-paved-path" },
+    { "name": "research-tools", "source": "./plugins/research-tools" },
+    { "name": "architecture-review", "source": "./plugins/architecture-review" },
+    { "name": "sdd-engineering", "source": "./plugins/sdd-engineering" }
+  ]
+}

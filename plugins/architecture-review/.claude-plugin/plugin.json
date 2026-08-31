@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "architecture-review",
+  "version": "0.0.0",
+  "description": "A generalized architecture-reviewer agent that reviews changes against repository-local architecture documentation.",
+  "author": {
+    "name": "AI Engineering"
+  },
+  "homepage": "https://devsiteua.github.io/dev-digest-ai-marketplace/#/plugin/architecture-review",
+  "repository": "https://github.com/devsiteua/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": ["agent", "architecture", "review", "quality-gate"],
+  "dependencies": [
+    { "name": "engineering-paved-path", "version": "^1.0.0" }
+  ]
+}

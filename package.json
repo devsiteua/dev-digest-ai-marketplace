@@ -1,0 +1,15 @@
+{
+  "name": "dev-digest-ai-marketplace",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Claude Code plugin marketplace extracted from DevDigest",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:index": "node scripts/build-index.mjs",
+    "validate": "claude plugin validate ."
+  }
+}
