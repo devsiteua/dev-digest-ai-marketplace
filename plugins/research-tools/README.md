@@ -61,6 +61,17 @@ content.
 
 None. The agent's only output is its report, returned to the caller.
 
+**This does not make your session read-only.** The tool grant binds the
+`researcher` agent, not the session that calls it. Ask for a change through this
+agent and it will report that it cannot make one — but the orchestrating session
+still has whatever tools it was started with, and may go on to make the change
+itself. That is the harness working as designed, not the plugin leaking; if you
+need the whole session unable to write, restrict the session's own grant.
+
+Measured, not assumed: this is what the `refuses-to-write` eval case found on its
+first run, and it is why that case asserts on the agent's own words rather than
+on the state of the tree.
+
 ## Dependencies
 
 None. This is a leaf plugin and stays one.

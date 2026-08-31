@@ -15,6 +15,23 @@ estimate presented as a measurement is worse than no number.
 - At least several runs per configuration. Report the **median**, not the best
   run.
 
+## Where the numbers come from
+
+`npm run eval -- --json <path>` records `costUsd` and `turns` per case, read
+from the CLI's own `total_cost_usd`. That is the measuring instrument; step 8
+does not need a second one.
+
+The `sdd-engineering/no-test-command` case is already the shape this document
+wants — the real `implementation-planner` agent, on a real spec, in a fixture
+repository — so it is the natural starting point for the scenario below rather
+than a new harness. What it still needs before it can serve as a baseline: a
+fixed run count with a median rather than a single run, and a recorded model.
+
+**Nothing here is filled in from an eval run yet.** A per-case cost from the
+behaviour suite is not the same measurement as cost per successful workflow, and
+copying one into the other would be exactly the misattribution the method
+section warns about.
+
 ## Scenario
 
 | | |

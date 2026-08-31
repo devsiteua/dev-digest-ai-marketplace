@@ -10,6 +10,8 @@
   },
   "scripts": {
     "build:index": "node scripts/build-index.mjs",
-    "validate": "claude plugin validate ."
+    "validate": "claude plugin validate .",
+    "eval": "node evals/run.mjs",
+    "eval:dry": "node evals/run.mjs --dry-run"
   }
 }

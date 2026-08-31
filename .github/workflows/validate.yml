@@ -38,6 +38,24 @@ jobs:
             echo "::endgroup::"
           done
 
+  evals:
+    name: Eval cases parse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Only the dry run belongs in CI. Running the suite for real starts a
+      # model session per case, which costs money and needs credentials CI does
+      # not have — so it is a release-checklist step, not a per-pull-request
+      # one (docs/RELEASES.md). This still catches a bad regex, a missing
+      # fixture, and a case with no graders.
+      - name: Every eval case parses
+        run: npm run eval:dry
+
   policy:
     name: Security policy
     runs-on: ubuntu-latest

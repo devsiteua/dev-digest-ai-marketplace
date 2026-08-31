@@ -56,6 +56,17 @@ create these tags by hand.
 3. `claude plugin validate .` green.
 4. Behavior evals green — the existing set **and** the ones added for the new
    behavior. Negative evals included.
+
+   ```bash
+   npm run eval
+   ```
+
+   CI runs only `npm run eval:dry`, which proves the cases parse and nothing
+   more: a real run starts a model session per case, so it costs money and needs
+   credentials CI does not have. **The full run is a human step, here, before the
+   tag** — a release whose evals were never run has a checklist tick and no
+   evidence. Record the run's case count and total cost in the changelog entry
+   beside the SHA.
 5. The commit is merged to `main` and CI passed on that exact SHA.
 6. `claude plugin tag --dry-run`, then `--push`.
 7. Record the SHA in the changelog entry.

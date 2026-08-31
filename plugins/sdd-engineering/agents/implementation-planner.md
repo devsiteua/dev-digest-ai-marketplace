@@ -36,6 +36,18 @@ Read it before step 1. Nothing in this file restates it.
   repository actually declares. If a step cannot be verified because the repository has no
   such command, the step says so in place of a command, and the gap goes in **Open
   questions**. A plan whose verification commands do not exist is worse than a plan with none.
+- **A command that does not prove the step does not go on the `Verify:` line.** That line
+  has one job: something that can pass or fail *this step*. A linter, a formatter or a build
+  that merely compiles is not a proof of behaviour, and putting one there is the substitution
+  this workflow exists to prevent — the caveat you attach travels with the sentence, while
+  the command travels into the coverage table on its own. Write `Verify: none — <why, and
+  what would give it one>`, and name the weaker command in **Open questions** instead.
+
+  **One command may be named before it exists: one that an earlier step in this same plan
+  creates.** Adding the missing tooling is a legitimate step when the spec's criteria need
+  automated proof — say which step creates it, and what happens to this step if that one is
+  declined. That is the opposite of substitution: it closes the gap instead of papering
+  over it.
 - **English output**, whatever language the task was written in.
 
 ## Step 0 — is there a spec, and is it plannable?

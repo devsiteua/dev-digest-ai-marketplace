@@ -113,6 +113,13 @@ An agent that invents `pnpm test` in a repository that uses `cargo test` is wors
 than one that refuses. A green report that skipped the check it claims to have run
 is worse still.
 
+**Substitution is the subtler failure, and it applies to every command here, not
+just the architecture check.** A repository that declares `lint` and no `test` has
+no test command; naming `lint` where a test was asked for — even with an honest
+caveat beside it — puts a command that cannot fail the way a test fails into the
+slot a test was meant to occupy. The caveat stays in the prose; the command
+travels on. Report the absence and use the documented empty form.
+
 ### Reading a command's result
 
 - **A guard is read by its output, not by its exit code.** Architecture and lint

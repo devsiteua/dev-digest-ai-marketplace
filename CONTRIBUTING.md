@@ -96,9 +96,12 @@ claude plugin validate .                    # the marketplace and every plugin
 
 npm run build:index                         # catalog index must generate
 cd site && npm ci && npm run build          # catalog UI must build
+
+npm run eval:dry                            # every eval case parses — costs nothing
+npm run eval                                # behavior evals, for real
 ```
 
-Load the plugins directly to check behavior, not just shape:
+Load the plugins directly to check behavior by hand:
 
 ```bash
 claude \
@@ -110,6 +113,11 @@ claude \
 
 Schema validation checks the shape of the files. Behavior evals check that the
 composition does the intended work. Both levels are required.
+
+`npm run eval` starts a real session per case and therefore costs money. Run
+`npm run eval:dry` freely — it catches a bad regex or a missing fixture without
+spending anything. See [evals/README.md](evals/README.md) for the case format
+and for why this repository has its own runner instead of `claude plugin eval`.
 
 ## Pull request checklist
 

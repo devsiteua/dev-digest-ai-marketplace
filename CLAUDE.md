@@ -17,8 +17,8 @@ done and merged into this branch stack; step 7 is next.
 | 4 | Build the four plugins: extract and edit the components | done — `feat/extract-plugins` |
 | 5 | Register the plugins in `marketplace.json` | done ahead of time in step 1 |
 | 6 | Static catalog on GitHub Pages | done — `feat/catalog-site` |
-| 7 | `claude plugin validate` and behavior evals | **next** — validate passes for all five manifests; evals not started |
-| 8 | Cost baseline and one optimization | template at [docs/COST-BASELINE.md](docs/COST-BASELINE.md) |
+| 7 | `claude plugin validate` and behavior evals | done — `feat/behavior-evals` |
+| 8 | Cost baseline and one optimization | **next** — template at [docs/COST-BASELINE.md](docs/COST-BASELINE.md); `npm run eval -- --json` reports per-case cost |
 | 9 | Release `sdd-engineering@1.0.0` | not started |
 | 10 | Install into an unrelated project | blocked — target repository not chosen |
 | 11 | Update to 1.1.0, rehearse the return to 1.0.0 | not started |
@@ -36,6 +36,7 @@ probably already written down.
 | [docs/SECURITY.md](docs/SECURITY.md) | What may never appear in a plugin. |
 | [docs/RELEASES.md](docs/RELEASES.md) | SemVer, tag convention, channels, and the way back to an earlier version. |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Where files go and what to run before pushing. |
+| [evals/README.md](evals/README.md) | The eval case format, the fixtures, and why this repository runs its own runner instead of `claude plugin eval`. |
 
 ## What the plugins ship
 
@@ -88,6 +89,9 @@ claude plugin validate .                  # the marketplace manifest
 claude plugin validate ./plugins/<name>   # one plugin — the marketplace check does not cover these
 cd site && npm ci && npm run build        # catalog UI
 cd site && npm run preview                # serve the built catalog locally
+
+npm run eval:dry                          # every eval case parses — costs nothing
+npm run eval                              # behavior evals, for real — costs money
 ```
 
 `build:index` must run before the site build: the catalog reads
@@ -99,6 +103,11 @@ plugins it lists. Both are needed; CI runs both.
 
 There is no `--strict` flag on `claude plugin validate`, and there is no
 `claude plugin rollback` command. Do not invent either.
+
+**`claude plugin eval` exists and is the right long-term home for the evals, but
+it is gated behind early access** and refuses to run for this account. Its case
+schema is not documented outside the tool, so `evals/run.mjs` is a stand-in that
+runs the same cases today. Do not write cases against a guessed `case.yaml`.
 
 ## Conventions
 
@@ -133,6 +142,7 @@ main
             └── docs/extraction-plan          PR #4
                 └── feat/extract-plugins          PR #5
                     └── feat/catalog-site              PR #6
+                        └── feat/behavior-evals            PR #7
 ```
 
 **CI does not run yet, and that is not a misconfiguration.** GitHub registers a
