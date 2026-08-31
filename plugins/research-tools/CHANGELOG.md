@@ -19,6 +19,15 @@ All notable changes to `research-tools` are documented here. The format follows
   claims about its own code (inline shape re-declaration, its instruction and
   insights file names) and making the presence of a package manifest optional.
 
+### Fixed
+
+- **The README now says what the read-only grant does not cover.** The tool grant
+  binds the `researcher` agent, not the session that calls it: asked to make a
+  change, the agent reports that it cannot, and the orchestrating session may
+  then make that change with its own tools. Found by the `refuses-to-write` eval,
+  whose first version asserted the file tree was untouched and failed for exactly
+  this reason — the plugin was correct and the assertion was not.
+
 ### Removed
 
 - **`Bash` from the agent's tool grant.** In its original home a `PreToolUse`

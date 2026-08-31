@@ -86,6 +86,20 @@ All notable changes to `sdd-engineering` are documented here. The format follows
   Hooks do not travel with a plugin. `plan-verifier` now says what actually
   enforces it: the absent `Write` and `Edit`, and nothing else.
 
+### Fixed
+
+- **`implementation-planner` no longer puts a command that cannot prove a step on
+  that step's `Verify:` line.** Found by the `no-test-command` eval: against a
+  repository declaring only `start` and `lint`, the agent stated correctly in
+  prose that lint must not stand in for a test, then wrote `Verify: npm run lint`
+  anyway. The caveat stays in the prose; the command travels into the coverage
+  table on its own. The rule is now explicit, with the one legitimate exception —
+  a command an earlier step in the same plan **creates**, which closes the gap
+  rather than papering over it.
+- **The no-substitution rule in `references/host-configuration.md` is stated for
+  every command**, not only under the architecture check, where it read as being
+  about that one command.
+
 ### Deduplicated
 
 Recorded here because [COST-BASELINE.md](../../docs/COST-BASELINE.md) measures
