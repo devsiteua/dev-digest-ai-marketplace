@@ -109,31 +109,75 @@ a running session does not change underneath it.
 
 ## Channels
 
-A channel is a marketplace source pinned to a particular ref. The pattern:
+A channel is a marketplace source pinned to a particular ref.
 
 | Channel | Pinned to | Purpose |
 |---|---|---|
 | `dev-digest-ai-marketplace` | `main` | Current release. The default. |
-| `dev-digest-ai-marketplace-stable` | A specific tag or SHA of a version that has been verified in production | The verified fallback |
+| pinned re-declaration of the same name | A specific tag or SHA verified in production | The verified fallback |
 
-The stable channel is prepared **before** it is needed, not during the incident.
+**A marketplace name is bound to one source.** Adding this repository a second
+time at a different ref fails:
+
+```
+✘ Failed to add marketplace: Cannot add marketplace "dev-digest-ai-marketplace":
+  its network source differs from the one declared for it in settings … the
+  source must match the one declared for this name in settings (or change the
+  declaration).
+```
+
+The name comes from `marketplace.json`, which is the same at every ref, so a
+second channel called `dev-digest-ai-marketplace-stable` **does not exist and
+cannot be added** without publishing a marketplace manifest that carries that
+name. This was found by rehearsing the rollback, not during an incident, which
+is the entire reason to rehearse.
+
+Until such a manifest exists, the fallback is a **re-declaration of the same
+name at a pinned ref**: remove the declaration, add it back with `@<tag>`. The
+procedure below is written that way.
 
 ## Going back to a previous version
 
 **There is no `claude plugin rollback` command.** Going back is a normal install
 from a channel pinned to the older ref:
 
-1. Add or update the stable channel, pinned to the ref or SHA of the known-good
-   release.
-2. Uninstall the plugin from the current channel, or disable that channel, so the
-   two sources cannot both satisfy the dependency.
-3. Install the plugin from the stable channel.
+0. **Write down what is installed now.** `claude plugin list`. You are about to
+   lose it — see step 2.
+1. **Re-declare the channel at the known-good ref.**
+
+   ```bash
+   claude plugin marketplace remove dev-digest-ai-marketplace
+   claude plugin marketplace add devsiteua/dev-digest-ai-marketplace@<plugin>--v<version>
+   ```
+
+2. **Removing the declaration uninstalls every plugin that came from it** — not
+   only the one being rolled back. Rehearsed: removing the channel left
+   `sdd-engineering` and `research-tools` gone from the project, and only what
+   was explicitly reinstalled came back. Budget for reinstalling the whole set,
+   and this is why step 0 exists.
+3. **Install from the pinned channel**, consumer first so its dependencies come
+   with it:
+
+   ```bash
+   claude plugin install sdd-engineering@dev-digest-ai-marketplace --scope project
+   ```
+
 4. `/reload-plugins`, or start a new session.
-5. Run the smoke eval. Going back is not done until the eval is green.
-6. Confirm the user did not lose plugin data. If the newer version could have
+5. **Check the rolled-back code before spending a run.** The plugin cache keeps
+   every version side by side under
+   `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`, so the rollback
+   is a pointer change and can be confirmed for free — grep the installed copy
+   for something the newer version introduced and the older one does not have.
+6. **Run the smoke eval. Going back is not done until it is green.** A code-level
+   check says the right files are in place; only a run says the plugin still
+   works.
+7. Confirm the user did not lose plugin data. If the newer version could have
    changed state outside the plugin — files written into the host repository,
    anything with an external side effect — describe how to restore that state
    separately. Reinstalling a plugin does not undo what it did.
+8. **Return the channel to the default** once the incident is over, and reinstall,
+   or the repository stays pinned to an old tag and silently stops receiving
+   fixes.
 
 Return the default channel to `latest` only after the exact command sequence has
 been recorded and rehearsed.
@@ -143,3 +187,20 @@ been recorded and rehearsed.
 The path back is rehearsed on a schedule, not discovered during an incident.
 Record the rehearsal date, the version returned to, and the smoke eval result in
 the plugin's changelog.
+
+### 2026-08-31 — `architecture-review` 1.1.0 → 1.0.0
+
+The first rehearsal, and it found that the procedure as originally written did
+not work. Three things it changed above:
+
+| What the rehearsal found | What it changed |
+|---|---|
+| A second, differently-named stable channel cannot be added — the name is bound to one source | The fallback is a re-declaration of the same name at a pinned ref |
+| Removing the channel uninstalled **all four** plugins, not just the one being rolled back | New step 0 (record what is installed) and an explicit warning in step 2 |
+| The cache holds every version side by side, so the rollback can be verified before paying for a run | New step 5, a free code-level check before the smoke eval |
+
+Evidence: with 1.0.0 active, the installed
+`architecture-reviewer.md` contained **0** occurrences of the rule 1.1.0 added;
+the 1.1.0 copy beside it contained **4**. The smoke eval then produced a full
+review whose header carried absolute paths — 1.1.0's change reverted, exactly as
+intended. Session `60cdc50a`, $0.712.

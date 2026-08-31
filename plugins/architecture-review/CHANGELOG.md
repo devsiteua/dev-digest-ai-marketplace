@@ -6,7 +6,14 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Nothing yet.
+### Rehearsed
+
+- **2026-08-31 — return from 1.1.0 to 1.0.0 rehearsed and green.** Smoke eval
+  produced a full review with 1.0.0's behaviour restored (session `60cdc50a`,
+  $0.712). The rehearsal found the documented path back did not work as written;
+  the corrections are in [docs/RELEASES.md](../../docs/RELEASES.md)
+  § Going back to a previous version, and the rehearsal record is beside them.
+  No plugin data was lost, and nothing in the target repository was modified.
 
 ## [1.1.0] — 2026-08-31
 

@@ -6,8 +6,8 @@ practices they rely on — so any repository can install them.
 
 ## Where you are in the work
 
-Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–10 are
-done and on `main`; step 11 is next.
+Eleven steps, from an empty repository to a rehearsed rollback. **All eleven are
+done and on `main`.**
 
 | Step | What | State |
 |---|---|---|
@@ -21,7 +21,7 @@ done and on `main`; step 11 is next.
 | 8 | Cost baseline and one optimization | done — `feat/cost-baseline`. Measured; the optimization did **not** reduce cost, and that is the recorded result |
 | 9 | Release `sdd-engineering@1.0.0` | done — four tags at `431f55d`, CI green on that commit |
 | 10 | Install into an unrelated project | done — [docs/INSTALL-TRACE.md](docs/INSTALL-TRACE.md) |
-| 11 | Update to 1.1.0, rehearse the return to 1.0.0 | **next** — the path back is in [docs/RELEASES.md](docs/RELEASES.md) |
+| 11 | Update to 1.1.0, rehearse the return to 1.0.0 | done — `architecture-review@1.1.0` released; the rehearsal rewrote the path back in [docs/RELEASES.md](docs/RELEASES.md) |
 
 ## Read these before changing anything
 
@@ -157,8 +157,8 @@ after which `validate` runs on every open pull request.
 
 ## Released
 
-`1.0.0` for all four plugins, tagged at `431f55d` on `main` with CI green on that
-commit. The catalog is live at
+`1.0.0` for all four plugins, tagged at `431f55d`, and `architecture-review@1.1.0`
+at `2e2659e` — each on `main` with CI green on that commit. The catalog is live at
 <https://devsiteua.github.io/dev-digest-ai-marketplace/>.
 
 ```bash
@@ -169,6 +169,13 @@ claude plugin install sdd-engineering@dev-digest-ai-marketplace --scope project
 **A tag is permanent. Never move one that has been pushed** — a consumer may
 already have resolved it. Going back to an earlier version is an install from a
 pinned channel, not a moved tag; there is no `claude plugin rollback` command.
+
+The path back was **rehearsed on 2026-08-31 and did not work as written**. What
+it found, and the corrected procedure, are in
+[docs/RELEASES.md](docs/RELEASES.md) § Going back to a previous version. The
+short version: a marketplace name is bound to one source, so there is no second
+`-stable` channel; and removing the channel uninstalls **every** plugin that came
+from it, not just the one being rolled back.
 
 ## One open question, deliberately deferred
 
