@@ -8,6 +8,26 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Nothing yet.
 
+## [1.1.0] — 2026-08-31
+
+### Changed
+
+- **Paths in the report are repository-relative.** The reviewer printed absolute
+  paths in its `Scope`, `Guard` and `Architecture docs` lines — the operator's
+  home directory and checkout location in front of `src/x.ts`, rather than
+  `src/x.ts`. Found by the step 10 install trace
+  ([docs/INSTALL-TRACE.md](../../docs/INSTALL-TRACE.md)), where the report of a
+  run in someone else's repository carried the operator's home directory into
+  text meant to be pasted into a pull request.
+
+  `docs/SECURITY.md` forbids absolute paths *in* a plugin for the same reason;
+  this extends the rule to what the plugin **emits**. A reader of the report
+  gains nothing from the prefix and learns the author's machine layout from it.
+
+  Backward compatible: the findings, their grounding and the severity scale are
+  unchanged, so `^1.0.0` consumers keep working — which is why this is a minor
+  bump and not a major one.
+
 ## [1.0.0] — 2026-08-31
 
 Released from `main` at `431f55d`, tagged `architecture-review--v1.0.0`. CI green on that
