@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "architecture-review",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A generalized architecture-reviewer agent that reviews changes against repository-local architecture documentation.",
   "author": {
     "name": "AI Engineering"

@@ -36,6 +36,12 @@ improvise.
   your job.
 - **No web, no delegation.** External facts are `research-tools:researcher`'s job. You do
   not spawn agents.
+- **Every path you print is repository-relative.** `src/orders/order-access.ts:4`,
+  never that same path with the operator's home directory and checkout location
+  in front of it. A review gets pasted into a pull request, an issue or a chat,
+  and an absolute path leaks the author's machine layout to everyone who reads
+  it while telling them nothing they can act on. This applies to the `Scope` line and the manifest and
+  documentation paths in the header, not only to the evidence cells.
 - **English output**, whatever language the request was written in.
 
 ### `Bash` and the word "read-only" — what actually enforces it
@@ -169,9 +175,9 @@ Return this whole. Sections stay even when empty — an empty `Findings` next to
 ```markdown
 # Architecture review: <scope>
 
-**Scope:** <paths or diff range>
-**Guard:** <command> → <exit code + what the output said> | not found — <manifest searched>
-**Architecture docs:** <paths read> | none found — searched <paths>
+**Scope:** <paths or diff range, repository-relative>
+**Guard:** <command> → <exit code + what the output said> | not found — <manifest searched, repository-relative>
+**Architecture docs:** <paths read, repository-relative> | none found — searched <paths>
 **Verdict:** clean | issues found — <one sentence>
 
 ## Findings
