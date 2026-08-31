@@ -6,8 +6,8 @@ practices they rely on — so any repository can install them.
 
 ## Where you are in the work
 
-Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–6 are
-done and merged into this branch stack; step 7 is next.
+Eleven steps, from an empty repository to a rehearsed rollback. Steps 1–8 are
+done and merged into this branch stack; step 9 is next.
 
 | Step | What | State |
 |---|---|---|
@@ -18,8 +18,8 @@ done and merged into this branch stack; step 7 is next.
 | 5 | Register the plugins in `marketplace.json` | done ahead of time in step 1 |
 | 6 | Static catalog on GitHub Pages | done — `feat/catalog-site` |
 | 7 | `claude plugin validate` and behavior evals | done — `feat/behavior-evals` |
-| 8 | Cost baseline and one optimization | **next** — template at [docs/COST-BASELINE.md](docs/COST-BASELINE.md); `npm run eval -- --json` reports per-case cost |
-| 9 | Release `sdd-engineering@1.0.0` | not started |
+| 8 | Cost baseline and one optimization | done — `feat/cost-baseline`. Measured; the optimization did **not** reduce cost, and that is the recorded result |
+| 9 | Release `sdd-engineering@1.0.0` | **next** — dependencies release first, then the consumer ([docs/RELEASES.md](docs/RELEASES.md)) |
 | 10 | Install into an unrelated project | blocked — target repository not chosen |
 | 11 | Update to 1.1.0, rehearse the return to 1.0.0 | not started |
 
@@ -92,6 +92,7 @@ cd site && npm run preview                # serve the built catalog locally
 
 npm run eval:dry                          # every eval case parses — costs nothing
 npm run eval                              # behavior evals, for real — costs money
+npm run measure:cost -- --config <file>   # two-arm cost comparison, median of N runs
 ```
 
 `build:index` must run before the site build: the catalog reads
@@ -143,6 +144,7 @@ main
                 └── feat/extract-plugins          PR #5
                     └── feat/catalog-site              PR #6
                         └── feat/behavior-evals            PR #7
+                            └── feat/cost-baseline             PR #8
 ```
 
 **CI does not run yet, and that is not a misconfiguration.** GitHub registers a
